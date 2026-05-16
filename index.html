@@ -1,0 +1,831 @@
+# Jogo-sobre-Brusque
+# index.html
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brusque Encantada</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+
+/* SEU CSS TODO ACIMA */
+
+/* ====== JOGO DA MEMÓRIA IMAGENS ====== */
+
+.carta{
+    position:relative;
+    overflow:hidden;
+}
+
+.carta img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:20px;
+    pointer-events:none;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Baloo 2', cursive;
+}
+
+body{
+    min-height:100vh;
+    overflow-x:hidden;
+    background:linear-gradient(180deg,#76d7ff 0%,#bdf4ff 45%,#a8ec8f 100%);
+    padding:25px;
+}
+
+.card{
+    width:100%;
+    max-width:1100px;
+    margin:auto;
+    background:rgba(255,255,255,0.96);
+    border-radius:40px;
+    padding:40px;
+    border:8px solid white;
+    box-shadow:0 12px 35px rgba(0,0,0,0.15);
+    animation:entrada .7s ease;
+}
+
+@keyframes entrada{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.tela{
+    display:none;
+}
+
+.tela.ativa{
+    display:block;
+}
+
+.titulo{
+    text-align:center;
+    color:#ff7b00;
+    font-size:4rem;
+    line-height:1;
+}
+
+.subtitulo{
+    text-align:center;
+    margin-top:20px;
+    color:#444;
+    font-size:1.4rem;
+}
+
+form{
+    margin-top:35px;
+}
+
+.campo{
+    margin-bottom:22px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-size:1.2rem;
+    font-weight:700;
+    color:#444;
+}
+
+input{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:18px;
+    background:#eef8ff;
+    font-size:1rem;
+    outline:none;
+    border:3px solid transparent;
+}
+
+input:focus{
+    border:3px solid #58c3ff;
+    background:white;
+}
+
+.btn{
+    width:100%;
+    margin-top:20px;
+    border:none;
+    padding:18px;
+    border-radius:22px;
+    background:#ffb703;
+    color:white;
+    font-size:1.7rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.3s;
+    box-shadow:0 7px 0 #d88f00;
+}
+
+.btn:hover{
+    transform:scale(1.02);
+    background:#ff9800;
+}
+
+.pergunta{
+    margin-top:25px;
+    text-align:center;
+    font-size:2rem;
+    color:#444;
+    font-weight:700;
+}
+
+.opcoes{
+    margin-top:35px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.opcao{
+    background:#eef8ff;
+    border-radius:28px;
+    padding:18px;
+    cursor:pointer;
+    transition:.3s;
+    text-align:center;
+    border:5px solid transparent;
+}
+
+.opcao:hover{
+    transform:scale(1.03);
+}
+
+.opcao img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:18px;
+}
+
+.nome{
+    margin-top:12px;
+    font-size:1.4rem;
+    font-weight:700;
+    color:#444;
+}
+
+.correta{
+    background:#82ff9b !important;
+    border-color:#14a535 !important;
+}
+
+.quase{
+    background:#ffe66d !important;
+    border-color:#d4af00 !important;
+}
+
+.errada{
+    background:#ff9292 !important;
+    border-color:#d92d2d !important;
+}
+
+.mensagem{
+    margin-top:25px;
+    text-align:center;
+    font-size:1.9rem;
+    font-weight:700;
+    color:#444;
+    min-height:40px;
+}
+
+.proximo{
+    display:none;
+    margin-top:25px;
+}
+
+.memoria{
+    margin-top:40px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+}
+
+.carta{
+    height:120px;
+    background:#4db8ff;
+    border-radius:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:3rem;
+    cursor:pointer;
+    color:transparent;
+    transition:.3s;
+}
+
+.carta.aberta{
+    background:white;
+    color:black;
+}
+
+.carta.correta{
+    background:#7dff98;
+    color:black;
+}
+
+.final{
+    text-align:center;
+    padding:40px 0;
+}
+
+.final h2{
+    color:#ff7b00;
+    font-size:3rem;
+}
+
+.progresso{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:30px;
+}
+
+.quadrado{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:white;
+    border:3px solid #d9d9d9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:800;
+    color:#444;
+    font-size:1rem;
+}
+
+.quadrado.certo{
+    background:#7dff98;
+    border-color:#16a637;
+}
+
+.quadrado.errado{
+    background:#ff8b8b;
+    border-color:#d62828;
+}
+
+.final p{
+    margin-top:20px;
+    font-size:1.5rem;
+    color:#444;
+}
+
+@media(max-width:768px){
+
+    body{
+        padding:10px;
+    }
+
+    .card{
+        padding:25px 18px;
+    }
+
+    .titulo{
+        font-size:2.7rem;
+    }
+
+    .subtitulo{
+        font-size:1.1rem;
+    }
+
+    .pergunta{
+        font-size:1.5rem;
+    }
+
+    .opcoes{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .opcao img{
+        height:100px;
+    }
+
+    .nome{
+        font-size:1rem;
+    }
+
+    .memoria{
+        gap:10px;
+    }
+
+    .carta{
+        height:75px;
+        font-size:2rem;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="card">
+
+<!-- INÍCIO -->
+<div class="tela ativa" id="inicio">
+
+<h1 class="titulo">Brusque Encantada</h1>
+
+<p class="subtitulo">
+Aprenda brincando sobre a história, cultura e curiosidades da cidade de Brusque!
+</p>
+
+<form onsubmit="iniciar(event)">
+
+<div class="campo">
+<label>Nome Completo</label>
+<input type="text" required>
+</div>
+
+<div class="campo">
+<label>Escola</label>
+<input type="text" required>
+</div>
+
+<div class="campo">
+<label>Idade</label>
+<input type="number" min="4" max="5" required>
+</div>
+
+<button class="btn">COMEÇAR A AVENTURA</button>
+
+</form>
+
+</div>
+
+<div class="progresso" id="progresso"></div>
+
+<div id="jogo"></div>
+
+<!-- MEMÓRIA -->
+<div class="tela" id="memoriaTela">
+
+<h1 class="titulo">Pergunta Especial</h1>
+
+<div class="pergunta">
+Encontre os pares no jogo da memória!
+</div>
+
+<div class="memoria" id="memoria">
+
+<div class="carta" data-imagem="1">🦆</div>
+<div class="carta" data-imagem="2">👕</div>
+<div class="carta" data-imagem="3">🦫</div>
+<div class="carta" data-imagem="4">🌉</div>
+<div class="carta" data-imagem="5">🥮</div>
+<div class="carta" data-imagem="6">🍻</div>
+<div class="carta" data-imagem="7">🧒</div>
+<div class="carta" data-imagem="8">🏭</div>
+
+<div class="carta" data-imagem="1">🦆</div>
+<div class="carta" data-imagem="2">👕</div>
+<div class="carta" data-imagem="3">🦫</div>
+<div class="carta" data-imagem="4">🌉</div>
+<div class="carta" data-imagem="5">🥮</div>
+<div class="carta" data-imagem="6">🍻</div>
+<div class="carta" data-imagem="7">🧒</div>
+<div class="carta" data-imagem="8">🏭</div>
+
+</div>
+
+<div class="mensagem" id="mensagemMemoria"></div>
+
+<button class="btn proximo" id="btnMemoria" onclick="mostrarFinal()">
+FINALIZAR JOGO
+</button>
+
+</div>
+
+<!-- FINAL -->
+<div class="tela" id="final">
+<div class="final">
+<h2>🎉 Parabéns! 🎉</h2>
+<p>
+Você completou todas as atividades da Brusque Encantada!
+</p>
+
+<p id="resultadoFinal"></p>
+<p>
+Obrigado por aprender mais sobre Brusque!
+</p>
+</div>
+</div>
+
+</div>
+
+<script>
+
+const perguntas = [
+
+{
+pergunta:'Em qual estado está localizada a cidade de Brusque?',
+opcoes:[
+['Santa Catarina', true, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Bandeira_de_Santa_Catarina.svg/1280px-Bandeira_de_Santa_Catarina.svg.png'],
+['São Paulo', false, 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg'],
+['Paraná', false, 'https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg'],
+['Pará', false, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Bandeira_do_Par%C3%A1.svg/1280px-Bandeira_do_Par%C3%A1.svg.png']
+]
+},
+
+{
+pergunta:'Qual comida é típica de Brusque?',
+opcoes:[
+['Taco', false, 'https://www.rap10.com.br/images/receitas/fotos/taco-de-carne-moida.jpg'],
+['Sushi', false, 'https://institucional.ifood.com.br/wp-content/uploads/2023/10/iFN_pratos-veggie-copiar-1-1024x692-1.webp'],
+['Cuca', true, 'https://roseflor.com.br/_files/recipes/30/1feb0a68ff6e3f4ae46c05f75406191d.jpg'],
+['Pizza', false, 'https://explore.typhur.com/wp-content/uploads/2025/01/homemade-pizza-in-air-fryer.jpg']
+]
+},
+
+{
+pergunta:'Quais cores estão na bandeira de Brusque?',
+opcoes:[
+['Azul, amarelo e verde', false, 'https://thumbs.dreamstime.com/b/cor-verde-amarela-azul-manchada-do-fundo-da-textura-teste-padr%C3%A3o-arte-moderna-pintura-efeito-aquarela-tricolor-brasileiro-122430839.jpg'],
+['Roxo, azul e amarelo', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/46706591-suave-roxo-azul-e-amarelo-gradiente-fundo-vetor.jpg'],
+['Vermelho, amarelo e verde', true, 'https://thumbs.dreamstime.com/b/fundo-verde-amarelo-vermelho-reggage-232930109.jpg'],
+['Vermelho, branco e rosa', false, 'https://i.pinimg.com/564x/df/c8/bf/dfc8bfc1e533a0734c5286781719ae9f.jpg']
+]
+},
+
+{
+pergunta:'Qual animal é símbolo da cidade de Brusque?',
+opcoes:[
+['Leão', false, 'https://img.freepik.com/vetores-premium/um-desenho-de-um-leao-com-um-fundo-branco_1016520-53567.jpg?semt=ais_hybrid&w=740&q=80'],
+['Girafa', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/29583100-fofa-pequeno-girafa-desenho-animado-em-branco-fundo-vetor.jpg'],
+['Elefante', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/66407170-a-elefante-desenho-animado-com-grande-olhos-e-orelhas-gratis-vetor.jpg'],
+['Marreco', true, 'https://img.freepik.com/vetores-gratis/personagem-de-desenho-animado-de-pato-selvagem-feliz_1308-116396.jpg']
+]
+},
+
+{
+pergunta:'Qual festa é típica de Brusque?',
+opcoes:[
+['Festa Junina', false, 'https://storage.friato.com.br/images/2022/06/origem-da-festa-junina.jpg?width=450&height=450'],
+['Fenarreco', true, 'https://www.fenarreco.com.br/upload/noticias/2025/10/WhatsApp%20Image%202025-10-13%20at%204.50.54%20PM.jpeg'],
+['Carnaval', false, 'https://www.brasildefato.com.br/wp-content/uploads/2024/09/image_processing20200221-7817-d0tuzz.jpg'],
+['Festa do Peão', false, 'https://leonardoconcon.com.br/wp-content/uploads/2025/08/FESTADEPEAOBARRETOS.jpg']
+]
+},
+
+{
+pergunta:'Qual loja é muito famosa em Brusque?',
+opcoes:[
+['FIP', true, 'https://i.ytimg.com/vi/PGrlSB48ZO8/sddefault.jpg'],
+['Nike', false, 'https://upload.wikimedia.org/wikipedia/commons/3/36/Logo_nike_principal.jpg'],
+['Amazon', false, 'https://centraldovarejo.com.br/wp-content/uploads/2024/04/amazon-e1701176268587-1.jpg'],
+['Shopee', false, 'https://products.eneba.games/products/Shopee-1686567178.svg']
+]
+},
+
+{
+pergunta:'Qual país ajudou a colonizar Brusque?',
+opcoes:[
+['Itália', false, 'https://upload.wikimedia.org/wikipedia/commons/0/03/Flag_of_Italy.svg'],
+['Alemanha', true, 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Germany.svg?utm_source=pt.wikipedia.org&utm_campaign=index&utm_content=original'],
+['França', false, 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/330px-Flag_of_France.svg.png'],
+['Japão', false, 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Japan.svg?utm_source=pt.wikipedia.org&utm_campaign=index&utm_content=original']
+]
+},
+
+{
+pergunta:'Qual rio passa por Brusque?',
+opcoes:[
+['Rio Itajaí-Mirim', true, 'https://rc.fm.br/images/w_1920/h_1080/arq_121314:noticias:985419:2bf57e93fe85d452660ecea57e52f17b.jpeg'],
+['Rio Amazonas', false, 'https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/pzzb8210.jpg?w=1600'],
+['Rio Tietê', false, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCtuv7zpPxGAbakAiPUP0ufYsENiVPNYELng&s'],
+['Rio São Francisco', false, 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Canind%C3%A9_de_S%C3%A3o_Francisco-002.jpg']
+]
+},
+
+{
+pergunta:'Brusque é conhecido por qual indústria?',
+opcoes:[
+['Avião', false, 'https://img.magnific.com/vetores-premium/desenho-de-aviao_119631-442.jpg?semt=ais_hybrid&w=740&q=80'],
+['Motores', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/215133-vista-lateral-detalhada-do-motor-de-turbo-do-desenho-vetor.jpg'],
+['Têxtil', true, 'https://thumbs.dreamstime.com/b/ilustra%C3%A7%C3%A3o-dos-desenhos-animados-da-m%C3%A1quina-de-costura-59013916.jpg'],
+['Metal', false, 'https://png.pngtree.com/png-vector/20201211/ourlarge/pngtree-cartoon-metallic-gear-metal-setting-icon-isolated-vector-png-image_2551248.jpg']
+]
+},
+
+{
+pergunta:'Qual animal aparece perto dos rios de Brusque?',
+opcoes:[
+['Capivara', true, 'https://png.pngtree.com/png-vector/20250825/ourmid/pngtree-adorable-cartoon-capybara-resting-peaceful-illustration-vector-png-image_17171493.webp'],
+['Macaco', false, 'https://png.pngtree.com/png-clipart/20240828/original/pngtree-little-monkey-cartoon-png-image_15870363.png'],
+['Urso', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/7916326-desenho-de-urso-engracado-vetor.jpg'],
+['Cobra', false, 'https://www.nicepng.com/png/detail/204-2042450_desenho-de-cobra-png-imagenes-de-serpientes-dibujos.png']
+]
+},
+
+{
+pergunta:'Brusque tem um time de futebol famoso?',
+opcoes:[
+['Verdadeiro', true, 'https://cdn-icons-png.flaticon.com/512/845/845646.png'],
+['Falso', false, 'https://cdn-icons-png.flaticon.com/512/845/845648.png']
+]
+},
+
+{
+pergunta:'O que as pessoas costumam comprar em Brusque?',
+opcoes:[
+['Brinquedo', false, 'https://www.pintarcolorir.com.br/wp-content/uploads/2015/03/Desenhos-para-colorir-de-brinquedos-01.png'],
+['Carro', false, 'https://img.magnific.com/vetores-premium/carro-vermelho-de-desenho-animado_601658-2609.jpg?semt=ais_hybrid&w=740&q=80'],
+['Roupas', true, 'https://i.pinimg.com/736x/0b/52/ce/0b52ceedbad115075c9d5630f933f1fd.jpg'],
+['Joias', false, 'https://png.pngtree.com/png-clipart/20210826/ourmid/pngtree-diamond-gem-hand-drawn-cartoon-elements-png-image_3435017.jpg']
+]
+},
+
+{
+pergunta:'O Pelznickel é típico de Brusque?',
+opcoes:[
+['Verdadeiro', false, 'https://cdn-icons-png.flaticon.com/512/845/845646.png'],
+['Falso', true, 'https://cdn-icons-png.flaticon.com/512/845/845648.png']
+]
+},
+
+{
+pergunta:'Como tornar Brusque uma cidade mais limpa?',
+opcoes:[
+['Jogar lixo na rua', false, 'https://static.vecteezy.com/ti/vetor-gratis/p1/302580-um-menino-jogando-lixo-ligado-rua-gratis-vetor.jpg'],
+['Pichar paredes', false, 'https://media.gazetadopovo.com.br/2012/10/75db5ea8e8f08e368608f83ec1ad895e-gpMedium.jpg'],
+['Reciclar o lixo', true, 'https://www.shutterstock.com/image-vector/cartoon-illustration-young-boy-holding-260nw-2727780143.jpg'],
+['Jogar lixo nos rios', false, 'https://img.freepik.com/vetores-premium/um-menino-jogando-um-saco-de-lixo-no-rio-ilustracao-de-desenho-animado_1322206-49642.jpg?semt=ais_hybrid&w=740&q=80']
+]
+}
+
+];
+
+let atual = 0;
+let tentativas = 0;
+let acertos = 0;
+let resultados = [];
+
+function iniciar(e){
+    e.preventDefault();
+    document.getElementById('inicio').classList.remove('ativa');
+    carregarPergunta();
+}
+
+function atualizarProgresso(){
+
+    let html = '';
+
+    for(let i=0;i<15;i++){
+
+        let classe = '';
+
+        if(resultados[i] === true){
+            classe = 'certo';
+        }
+
+        if(resultados[i] === false){
+            classe = 'errado';
+        }
+
+        html += `
+        <div class="quadrado ${classe}">
+            ${i+1}
+        </div>
+        `;
+    }
+
+    document.getElementById('progresso').innerHTML = html;
+}
+
+function carregarPergunta(){
+
+    atualizarProgresso();
+
+    if(atual === perguntas.length){
+        abrirMemoria();
+        return;
+    }
+
+    const p = perguntas[atual];
+
+    let html = `
+    <div class="tela ativa" id="perguntaTela">
+
+    <h1 class="titulo">Pergunta ${atual+1}</h1>
+
+    <div class="pergunta">${p.pergunta}</div>
+
+    <div class="opcoes">
+    `;
+
+    p.opcoes.forEach((opcao,index)=>{
+
+        html += `
+        <div class="opcao" onclick="verificar(this, ${opcao[1]})">
+            <img src="${opcao[2]}">
+            <div class="nome">${opcao[0]}</div>
+        </div>
+        `;
+
+    });
+
+    html += `
+    </div>
+
+    <div class="mensagem" id="mensagem"></div>
+
+    <button class="btn proximo" id="btnProximo" onclick="proximaPergunta()">
+        PRÓXIMA PERGUNTA
+    </button>
+
+    </div>
+    `;
+
+    document.getElementById('jogo').innerHTML = html;
+
+    tentativas = 0;
+
+    window.scrollTo(0,0);
+}
+
+function verificar(el, correta){
+
+    const mensagem = document.getElementById('mensagem');
+    const btn = document.getElementById('btnProximo');
+
+    if(correta){
+
+        el.classList.add('correta');
+
+        resultados[atual] = true;
+        acertos++;
+
+        mensagem.innerHTML = '🎉 Muito bem! Você acertou!';
+
+        confetti({
+            particleCount:200,
+            spread:120
+        });
+
+        btn.style.display = 'block';
+
+        document.querySelectorAll('.opcao').forEach(op=>{
+            op.style.pointerEvents='none';
+        });
+
+    }else{
+
+        tentativas++;
+
+        if(tentativas === 1){
+
+            el.classList.add('quase');
+
+            mensagem.innerHTML = '⚠️ Tente novamente!';
+
+        }else{
+
+            el.classList.add('errada');
+
+            resultados[atual] = false;
+
+            mensagem.innerHTML = '❌ Vamos para a próxima!';
+
+            btn.style.display = 'block';
+
+            document.querySelectorAll('.opcao').forEach(op=>{
+                op.style.pointerEvents='none';
+            });
+
+        }
+    }
+}
+
+function proximaPergunta(){
+    atual++;
+    carregarPergunta();
+}
+
+function abrirMemoria(){
+
+    document.getElementById('jogo').innerHTML = '';
+
+    document.getElementById('memoriaTela').classList.add('ativa');
+
+    iniciarMemoria();
+}
+
+function iniciarMemoria(){
+
+    const memoria = document.getElementById('memoria');
+
+    for(let i = memoria.children.length; i >= 0; i--){
+        memoria.appendChild(memoria.children[Math.random() * i | 0]);
+    }
+
+    const cartas = document.querySelectorAll('.carta');
+
+    let primeira = null;
+    let segunda = null;
+    let bloqueio = false;
+    let pares = 0;
+
+    cartas.forEach(carta=>{
+
+        carta.onclick = ()=>{
+
+            if(bloqueio) return;
+            if(carta.classList.contains('aberta')) return;
+            if(carta.classList.contains('correta')) return;
+
+            carta.classList.add('aberta');
+
+            if(!primeira){
+                primeira = carta;
+                return;
+            }
+
+            segunda = carta;
+
+            bloqueio = true;
+
+            if(primeira.dataset.imagem === segunda.dataset.imagem){
+
+                primeira.classList.add('correta');
+                segunda.classList.add('correta');
+
+                primeira = null;
+                segunda = null;
+                bloqueio = false;
+
+                pares++;
+
+                if(pares === 8){
+
+                    document.getElementById('mensagemMemoria').innerHTML =
+                    '🎉 Você venceu o jogo da memória!';
+
+                    confetti({
+                        particleCount:300,
+                        spread:150
+                    });
+
+                    document.getElementById('btnMemoria').style.display='block';
+                }
+
+            }else{
+
+                setTimeout(()=>{
+
+                    primeira.classList.remove('aberta');
+                    segunda.classList.remove('aberta');
+
+                    primeira = null;
+                    segunda = null;
+                    bloqueio = false;
+
+                },900);
+            }
+        }
+    });
+}
+
+function mostrarFinal(){
+
+    document.getElementById('resultadoFinal').innerHTML =
+    `Você acertou ${acertos} de 15 perguntas!`;
+
+    document.getElementById('memoriaTela').classList.remove('ativa');
+
+    document.getElementById('final').classList.add('ativa');
+
+    confetti({
+        particleCount:400,
+        spread:180
+    });
+}
+
+</script>
+
+</body>
+</html>
+```
